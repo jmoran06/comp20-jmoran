@@ -14,6 +14,33 @@
 <div id="movie_quotes"></div>
 
 <script>
+        vid = document.getElementById("classic_video");
+        vid.addEventListener("timeupdate", function () {
+                var time = vid.currentTime;
+                var movie_quotes = document.getElementById("movie_quotes")
+                if (time < 24) {
+                        movie_quotes.innerHTML = "<p> &#42 noises &#42 <p>"
+                } else if(time >= 24 && time <= 32) {
+                        movie_quotes.innerHTML = "<p> Igor: DR.\
+                        FRANKENSTEIN?!?!? <br /> Dr. Frederick Frankenstein: \
+                        No, its Frokensteen.  </p>"
+                } else if(time > 32 && time <= 39) {
+                        movie_quotes.innerHTML = "<p> Igor: You're putting me \
+                        on. <br /> Dr. Frankenstein: No, it's pronounced, \
+                        'Frokensteen'. </p>"
+                } else if (time > 39 && <= 46) {
+                        movie_quotes.innerHTML = "<p> Igor: Do you also say \
+                        'Froaderick'? <br /> Dr. Frankenstein: No... \
+                        'Frederick.' <br /> Igor: Well, why isn't it \
+                        'Froaderick Frokensteen'? </p>"
+                } else if (time > 46 && <= 53) {
+                        movie_quotes.innerHTML = "<p> Dr. Frankenstein: It \
+                        isn't, it's 'Frederick Frokensteen.' <br /> Igor: I \
+                        see. <br /> Dr. Frankenstein: You must be Igor. &#91 \
+                        He pronounces it ee-gor. &#93"
+                }
+        }, false);
+
         // Complete this section and create a CSS file named style.css
 </script>
 </body>
