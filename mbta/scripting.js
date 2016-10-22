@@ -18,7 +18,7 @@ function getMyLocation() {
            navigator.geolocation.getCurrentPosition(function(position) {
                 mylat = position.coords.latitude;
                 mylong = position.coords.longitude;
-                renderMap();
+                getTrainData();
            });
       }
       else {
@@ -30,17 +30,12 @@ function renderMap()
 {
      me = new google.maps.LatLng(mylat, mylong);
      map.panTo(me);
-     marker = new google.maps.Marker({
+     mymarker = new google.maps.Marker({
           position: me,
-          title: "Click Here"
+          title: "Me"
      });
-     marker.setMap(map);
-     infowindow = new google.maps.InfoWindow();
-     google.maps.event.addListener(marker, 'click', function() {
-          infowindow.setContent(this.title);
-          infowindow.open(map, this);
-          map.panTo(this.position);
-     });
+     mymarker.setMap(map);
+
      stations = [];
      stations[0] = {name: "Alewife", lat: 42.395428, long: -71.142483};
      stations[1] = {name: "Davis", lat: 42.39674, long: -71.121815};
@@ -77,8 +72,8 @@ function renderMap()
                icon: 'smallmbta.ico',
           });
           marker.setMap(map);
-          var dist_to_me = haversineDistance(stations[i]["lat"],
-          stations[i]["long"], [mylat, mylong], true);
+          var dist_to_me = haversineDistance([stlat,
+          long], [mylat, mylong], true);
           if (closest_dist < 0 || dist_to_me < closest_dist) {
                closest_dist = dist_to_me;
                closest_station = i;
@@ -88,16 +83,6 @@ function renderMap()
                nextlong = stations[i+1]["long"];
           }
           if(stations[i]["name"] == "JFK/Umass"){
-               path1 = new google.maps.Polyline({
-                    path1: [{lat: stlat, lng: long}, {lat: nextlat, lng: nextlong}],
-                    geodesic: true,
-                    strokecolor: '#FF0000',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 4
-               });
-               console.log(stations[i]["name"]);
-               console.log(nextlat);
-               path1.setMap(map);
                otherlat = stations[i+5]["lat"];
                otherlong = stations[i+5]["long"];
                path2 = new google.maps.Polyline({
@@ -109,8 +94,7 @@ function renderMap()
                });
                path2.setMap(map);
           }
-          else if (stations[i]["name"] !== "Ashmont" || stations[i]["name"] !== "Braintree") {
-               console.log(stations[i]["name"])
+          if (stations[i]["name"] !== "Ashmont" && stations[i]["name"] !== "Braintree") {
                path = new google.maps.Polyline({
                     path: [{lat: stlat, lng: long}, {lat: nextlat, lng: nextlong}],
                     geodesic: true,
@@ -120,12 +104,7 @@ function renderMap()
                });
                path.setMap(map);
           }
-          infowindow = new google.maps.InfoWindow();
-          google.maps.event.addListener(marker, 'click', function() {
-               infowindow.setContent(this.title);
-               infowindow.open(map, this);
-          });
-
+          createInfoWindow(stations[i], marker)
      }
      closestlat = stations[closest_station]["lat"];
      closestlong = stations[closest_station]["long"];
@@ -137,7 +116,49 @@ function renderMap()
           strokeWeight: 4
      });
      path.setMap(map);
+     infowindow = new google.maps.InfoWindow();
+     google.maps.event.addListener(mymarker, 'click', function() {
+          infowindow.setContent("Closest Station: " + stations[closest_station]["name"] +
+               "<br/> Distance from you: " + closest_dist + " miles.");
+          infowindow.open(map, this);
+          map.panTo(this.position);
+     });
 
+}
+function createInfoWindow(station, statmarker) {
+     trainInfo = "Trip ID, Destination, Time Until Arriving (seconds). <br/>";
+     for(i = 0; i < (trainData["TripList"]["Trips"]).length; i ++) {
+          trip = trainData["TripList"]["Trips"][i];
+          tripID = trainData["TripList"]["Trips"][i]["TripID"];
+          dest = trainData["TripList"]["Trips"][i]["Destination"];
+          for(j = 0; j < (trip["Predictions"]).length; j++) {
+               if (trip["Predictions"][j]["Stop"] == station["name"]) {
+                    seconds = trip["Predictions"][j]["Seconds"]
+                    trainInfo = trainInfo + tripID + ", " + dest + ", " + seconds + ". <br/>";
+               }
+          }
+     }
+     infowindow = new google.maps.InfoWindow();
+     google.maps.event.addListener(statmarker, 'click', function() {
+          infowindow.setContent(station["name"] + " <br/> " + trainInfo);
+          infowindow.open(map, this);
+          map.panTo(this.position);
+     });
+}
+
+function getTrainData() {
+     var raw_data;
+     var parsed_data;
+     request = new XMLHttpRequest();
+     request.open("get", "https://rocky-taiga-26352.herokuapp.com/redline.json", true);
+     request.onreadystatechange = function() {
+          if(request.readyState == 4 && request.status == 200) {
+               raw_data = request.responseText;
+               trainData = JSON.parse(raw_data);
+               renderMap();
+          }
+     };
+     request.send();
 }
 function haversineDistance(location1, location2, miles) {
      function toRad(x) {
