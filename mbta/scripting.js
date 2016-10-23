@@ -61,7 +61,7 @@ function renderMap()
      stations[21] = {name: "Braintree", lat: 42.2078543, long: -71.0011385};
      var closest_dist = -1
      var closest_station = -1
-     for(i = 0; i < stations.length; i++) {
+     for(var i = 0; i < stations.length; i++) {
           var stlat = stations[i]["lat"];
           var long = stations[i]["long"];
           var pos = new google.maps.LatLng(stlat, long);
@@ -104,7 +104,7 @@ function renderMap()
                });
                path.setMap(map);
           }
-          createInfoWindow(stations[i], marker)
+          createInfoWindow(stations[i], marker);
      }
      closestlat = stations[closest_station]["lat"];
      closestlong = stations[closest_station]["long"];
@@ -125,20 +125,22 @@ function renderMap()
      });
 
 }
+
 function createInfoWindow(station, statmarker) {
      trainInfo = "Trip ID, Destination, Time Until Arriving (seconds). <br/>";
-     for(i = 0; i < (trainData["TripList"]["Trips"]).length; i ++) {
+     for(var i = 0; i < (trainData["TripList"]["Trips"]).length; i++) {
           trip = trainData["TripList"]["Trips"][i];
-          tripID = trainData["TripList"]["Trips"][i]["TripID"];
-          dest = trainData["TripList"]["Trips"][i]["Destination"];
+          tripID = trip["TripID"];
+          dest = trip["Destination"];
           for(j = 0; j < (trip["Predictions"]).length; j++) {
                if (trip["Predictions"][j]["Stop"] == station["name"]) {
                     seconds = trip["Predictions"][j]["Seconds"]
-                    trainInfo = trainInfo + tripID + ", " + dest + ", " + seconds + ". <br/>";
+                    var trainInfo = trainInfo + tripID + ", " + dest + ", " + seconds + ". <br/>";
                }
           }
      }
-     infowindow = new google.maps.InfoWindow();
+     var infowindow = new google.maps.InfoWindow();
+     console.log(trainInfo);
      google.maps.event.addListener(statmarker, 'click', function() {
           infowindow.setContent(station["name"] + " <br/> " + trainInfo);
           infowindow.open(map, this);
