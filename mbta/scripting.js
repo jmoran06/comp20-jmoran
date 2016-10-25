@@ -139,7 +139,7 @@ function createInfoWindow(station, statmarker) {
                }
           }
      }
-     var infowindow = new google.maps.InfoWindow();
+     infowindow = new google.maps.InfoWindow();
      console.log(trainInfo);
      google.maps.event.addListener(statmarker, 'click', function() {
           infowindow.setContent(station["name"] + " <br/> " + trainInfo);
@@ -158,6 +158,10 @@ function getTrainData() {
                raw_data = request.responseText;
                trainData = JSON.parse(raw_data);
                renderMap();
+          }
+          else {
+               alert("The server did not receive the data, please refresh your page");
+               return;
           }
      };
      request.send();
