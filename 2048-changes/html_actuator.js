@@ -32,10 +32,11 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
       }
       var username = prompt("Please enter a username:");
       var score = metadata.score;
+      var strgrid = JSON.stringify(grid);
       request = new XMLHttpRequest();
       request.open("POST", "https://guarded-hollows-46255.herokuapp.com/submit.json", true);
       request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      request.send("username=" + username + "&score=" + score + "&grid=" + grid);
+      request.send("username=" + username + "&score=" + score + "&grid=" + strgrid);
     }
 
   });
