@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+     <title> Security Assessment-2048 Database</title>
+     <meta charset="utf-8" />
+</head>
+<body>
+     <h1> Security Assessment- 2048 Database</h1>
+
+     <h2> Introduction </h2>
+     <p>This assessment is intended to test my partner's (Alexandru Ungureanu) client-side and server-side code of his 2048 Database and Webpage in order to discover any potential security risks.</p>
+     <h2> Methodology </h2>
+     <p> I first decided to test Alex's code using "black-box" testing, then downloaded his code from his heroku app and began "white box" testing. As Alex was adept at dealing with security risks, I also looked at some theoretical more broad issues.</p>
+     <h2> Abstraction of Finding </h2>
+     <p> Most of the problems I discovered stem from a lack of anticipating possible breaches or inputs that can be used to access or otherwise mess with the database. Also, there was a problem that stems from allowing any site to deliver information to his app if they have the link.</p>
+     <h2>Issues Found </h2>
+     <h3> 1. NoSQL Injection </h3>
+     <p>Location: /scores.json</p>
+     <p> Severity: High - A huge privacy issue as anyone can see all data in the database without the correct username needed</p>
+     <p>Description: When acessing /scores.json, instead of using "username=myusername" as a query, using the query "username[$ne]=1" allows access to the entire database.</p>
+     <p> Result: <img src="NoSQL injection.png" alt="NoSQL injection result"/>
+     <p> Recommendation: This means that the query must be further sanitized before being used. My partner does use some sanitation with line 25, but more is needed.</p>
+     <h3> 2. Accepting non-numerical Scores </h3>
+     <p>Location: /</p>
+     <p> Severity: Low - this allows users to make cosmetic messes of the main page, but doesn't create a large security risk as it releases no added information</p>
+     <p>Description: Because my partner uses ParseInt to parse the score of the data entered, when a non-numerical character is entered, the number Nan appears instead of a score in the database and the table on the main page. Code shown Here: <img src="Parse-Int Issue.png" alt="Parse Int Issue"/></p>
+     <p> Result: <img src="Nan Result.png" alt="Parse Int Result">
+     <p> Recommendation: In order for this to stop happening, an addition to the code that checks if the result of ParseInt is Nan would be needed. In this case the document should not be insterted.</p>
+     <h3> 3. AccessControl Origin Non-specificity</h3>
+     <p>Location: /submit.json</p>
+     <p> Severity: High - A huge privacy issue as anyone can send in data to this app, not just the site that my partner intended.</p>
+     <p>Description:  The line of code in question allows anyone who has the link to the heroku app to be able to send data in and it will be stored in the database. This app was only meant to store data from my partner's 2048 game. Code shown here: <img src="Access-Control Trouble.png" alt=" Access Control Issue"/></p>
+     <p> Result: This is more theoretical than in practice, but the ability to use my heroku app to add data to his database shows that as long as I have the link, I can add the data. </p>
+     <p> Recommendation: Instead of the asterisk in my partner's code (shown in the picture above), there should be a specific site address that is the only site allowed to post to Alex's app.</p>
+     <h2> Conclusion</h2>
+     <p>Alex's code was very secure to most issues such as Cross-Site Sharing and avoiding hardcoding the access to his database. This made this assignment more difficult for me, but points toward the care he took in preventing risks. In order ot make a truly secure app, he should also use HTTPS instead of HTTP, but that would require some cost and a new site to host his app</p>
